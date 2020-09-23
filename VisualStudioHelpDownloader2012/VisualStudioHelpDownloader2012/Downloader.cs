@@ -11,14 +11,57 @@
 	using System.Text;
     using System.Threading.Tasks;
     using System.Windows.Forms;
-	using System.Xml;
 	using System.Xml.Linq;
+	using System.Xml;
+
+	/// <summary>
+	///		Contains the arguments of a BooksDownloadStatusChanged event handler.
+	/// </summary>
+	internal sealed class BooksDownloadStatusChangedEventArgs
+    {
+		/// <summary>
+		/// File name (not including path) of the file being downloaded.
+		/// </summary>
+		public string Filename { get; }
+
+		/// <summary>
+		/// Percent range [0,100] of the file downloaded.
+		/// </summary>
+		public int Percent { get; }
+
+		/// <summary>
+		/// Number of bytes downloaded or -1 if download has not been started.
+		/// </summary>
+		public long BytesDownloaded { get; }
+
+		/// <summary>
+		/// Number of bytes to download or -1 if download has not been started.
+		/// </summary>
+		public long BytesToDownload { get; }
+
+		/// <summary>
+		/// Constructor.
+		/// </summary>
+		public BooksDownloadStatusChangedEventArgs(String filename, int percent, long bytesDownloaded, long bytesToDownload)
+        {
+			Filename = filename;
+			Percent = percent;
+			BytesDownloaded = bytesDownloaded;
+			BytesToDownload = bytesToDownload;
+        }
+    }
 
 	/// <summary>
 	///     Class to perfom the downloading of the MSDN book information and the books themselves
 	/// </summary>
 	internal sealed class Downloader : IDisposable
-	{
+	{	
+		/// <summary>
+		/// Event to notify a change during books download such download started, download progress,
+		/// and download finish.
+		/// </summary>
+		public event EventHandler<BooksDownloadStatusChangedEventArgs> BooksDownloadStatusChanged;
+		
 		/// <summary>
 		/// The http client used for downloading
 		/// </summary>
@@ -204,7 +247,7 @@
 		/// <param name="cachePath">
 		/// The path where the downloaded books are cached
 		/// </param>
-		/// <param name="progress">
+		/// <param name="globalProgress">
 		/// Interface used to report the percentage progress back to the GUI
 		/// </param>
 		/// <exception cref="ArgumentNullException">
@@ -225,7 +268,7 @@
 		/// <exception cref="InvalidOperationException">
 		/// If the data cannot be processed
 		/// </exception>
-		public async Task DownloadBooksAsync( ICollection<BookGroup> bookGroups, string cachePath, IProgress<int> progress )
+		public async Task DownloadBooksAsync( ICollection<BookGroup> bookGroups, string cachePath, IProgress<int> globalProgress )
 		{
 			if ( bookGroups == null )
 			{
@@ -309,11 +352,24 @@
 			client.BaseAddress = "https://packages.mtps.microsoft.com/";
 			foreach ( Package package in packages.Values )
 			{
-				string targetFileName = Path.Combine( targetDirectory, package.CreateFileName() );
+				string packageFileName = package.CreateFileName();
+				string targetFileName = Path.Combine( targetDirectory, packageFileName );
 				if ( package.State == PackageState.NotDownloaded || package.State == PackageState.OutOfDate )
 				{
 					Debug.Print( "         Downloading : '{0}' to '{1}'", package.Link, targetFileName );
+					
+					OnBooksDownloadStatusChanged(packageFileName, 0);
+
+                    client.DownloadProgressChanged += (object sender, DownloadProgressChangedEventArgs e) =>
+					{
+						// TODO(vu5eruz): Prevent the event being raised hundreds of times per second
+						
+						OnBooksDownloadStatusChanged(packageFileName, e.ProgressPercentage, e.BytesReceived, e.TotalBytesToReceive);
+					};
+
 					await client.DownloadFileTaskAsync( package.Link, targetFileName );
+
+					OnBooksDownloadStatusChanged(packageFileName, 100);
 
 					if (AuthenticodeTools.IsTrusted(targetFileName))
 					{
@@ -330,8 +386,19 @@
 					}
 				}
 
-				progress.Report( 100 * ++packagesCountCurrent / packages.Count );
+				globalProgress.Report( 100 * ++packagesCountCurrent / packages.Count );
 			}
+		}
+
+        /// <summary>
+        /// Raise the BooksDownloadStatusChanged event.
+        /// </summary>
+        /// <param name="e">The handler arguments.</param>
+        private void OnBooksDownloadStatusChanged(string FileName, int Percent, long bytesDownloaded = -1, long bytesToDownload = -1)
+        {
+			var handler = BooksDownloadStatusChanged;
+
+			handler?.Invoke(this, new BooksDownloadStatusChangedEventArgs(FileName, Percent, bytesDownloaded, bytesToDownload));
 		}
 
 		/// <summary>

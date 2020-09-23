@@ -4,9 +4,11 @@
 	using System.Collections.Generic;
 	using System.Globalization;
 	using System.IO;
+	using System.Net;
 	using System.Threading.Tasks;
 	using System.Windows.Forms;
 	using System.Diagnostics;
+
 	/// <summary>
 	///     Main application form.
 	/// </summary>
@@ -27,7 +29,7 @@
 			Text = Application.ProductName;
 			products = new List<BookGroup>();
 			startupTip.Visible = false;
-			cacheDirectory.Text = Path.Combine( Environment.GetFolderPath( Environment.SpecialFolder.UserProfile ), "Downloads", "MSDN Library" );
+			cacheDirectory.Text = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Downloads", "MSDN Library");
 		}
 
 		/// <summary>
@@ -36,14 +38,38 @@
 		/// <param name="value">
 		/// The value of the updated progress. (percentage complete)
 		/// </param>
-		public void Report( int value )
+		public void Report(int value)
 		{
-			Invoke(
-				new MethodInvoker(
-					delegate
-						{
-							downloadProgress.Value = value;
-						} ) );
+			Invoke(new MethodInvoker(
+				delegate
+				{
+					downloadProgress.Value = value;
+				}
+			));
+		}
+
+		/// <summary>
+		/// Handler for the BooksDownloadStatusChanged event.
+		/// </summary>
+		/// <param name="sender">Unused.</param>
+		/// <param name="e">Used.</param>
+		private void OnBooksDownloadStatusChanged(object sender, BooksDownloadStatusChangedEventArgs e)
+        {
+			Invoke(new MethodInvoker(
+				delegate
+				{
+					if (e.BytesDownloaded > 0)
+                    {
+						statusStripStatus.Text = $"Downloading {e.Filename} ({e.BytesDownloaded} / {e.BytesToDownload}) ...";
+					}
+                    else
+                    {
+						statusStripStatus.Text = $"Downloading {e.Filename} ...";
+					}
+					
+					statusStripProgress.Value = e.Percent;
+				}
+			));
 		}
 
 		/// <summary>
@@ -53,11 +79,42 @@
 		/// <param name="e">
 		/// The parameter is not used.
 		/// </param>
-		protected override void OnLoad( EventArgs e )
+		protected override void OnLoad(EventArgs e)
 		{
-			base.OnLoad( e );
+			base.OnLoad(e);
 			loadingBooksTip.Visible = false;
 			startupTip.Visible = true;
+
+			UpdateStatus();
+		}
+
+		/// <summary>
+		/// Updates the text in the status strip.
+		/// </summary>
+		private void UpdateStatus()
+		{
+			statusStripProgress.Value = e.Percent;
+
+			if (cacheDirectory.Text == "")
+			{
+				statusStripStatus.Text = "Missing Output Directory";
+			}
+			else if (vsVersion.SelectedIndex == -1)
+			{
+				statusStripStatus.Text = "Select Visual Studio version";
+			}
+			else if (languageSelection.SelectedIndex == -1)
+			{
+				statusStripStatus.Text = "Select language";
+			}
+			else if (booksList.Items.Count == 0)
+			{
+				statusStripStatus.Text = "Load books";
+			}
+			else
+			{
+				statusStripStatus.Text = "Select books and hit download";
+			}
 		}
 
 		/// <summary>
@@ -81,11 +138,17 @@
 			{
 				using (Downloader downloader = new Downloader())
 				{
+					statusStripStatus.Text = "Updating locales ...";
+
 					(await downloader.LoadAvailableLocalesAsync(version)).ForEach(x => languageSelection.Items.Add(x));
 				}
+
+				UpdateStatus();
 			}
 			catch ( Exception ex )
 			{
+				statusStripStatus.Text = "Locales updating failed";
+
 				MessageBox.Show(
 					$"Locales update failed - {ex.Message}",
 					Application.ProductName,
@@ -120,7 +183,12 @@
 			{
 				using (Downloader downloader = new Downloader())
 				{
+					statusStripStatus.Text = "Initializing books download ...";
+
+					downloader.BooksDownloadStatusChanged += OnBooksDownloadStatusChanged;
+
 					await downloader.DownloadBooksAsync(products, cacheDirectory.Text, this);
+
 					MessageBox.Show(
 						"Download completed successfully",
 						Application.ProductName,
@@ -129,9 +197,13 @@
 						MessageBoxDefaultButton.Button1,
 						0);
 				}
+
+				UpdateStatus();
 			}
 			catch ( Exception ex )
 			{
+				statusStripStatus.Text = "Books download failed";
+
 				MessageBox.Show(
 					$"Download failed - {ex.Message}",
 					Application.ProductName,
@@ -171,12 +243,18 @@
 			{
 				using (Downloader downloader = new Downloader())
 				{
+					statusStripStatus.Text = "Loading books ...";
+
 					products = await downloader.LoadBooksInformationAsync(path);
 					DisplayBooks();
 				}
+
+				UpdateStatus();
 			}
 			catch ( Exception ex )
 			{
+				statusStripStatus.Text = "Books loading failed";
+
 				MessageBox.Show(
 					$"Failed to retrieve book information - {ex.Message}",
 					Application.ProductName,
@@ -322,12 +400,11 @@
 		/// </param>
 		private void BooksListItemChecked( object sender, ItemCheckedEventArgs e )
 		{
-			Book book = e.Item.Tag as Book;
-			if ( book != null )
-			{
-				book.Wanted = e.Item.Checked;
-			}
-		}
+            if (e.Item.Tag is Book book)
+            {
+                book.Wanted = e.Item.Checked;
+            }
+        }
 
 		/// <summary>
 		/// Called when the language combobox selection is changed. Clear the
@@ -344,10 +421,11 @@
 			booksList.Items.Clear();
 			downloadBooks.Enabled = false;
 			startupTip.Visible = true;
+			UpdateStatus();
 		}
 
 		/// <summary>
-		/// Called when the visual studio language combobox selection is changed. Clear the
+		/// Called when the visual studio version combobox selection is changed. Clear the
 		/// currently list of available books and reshow the instruction.
 		/// </summary>
 		/// <param name="sender">
@@ -361,6 +439,7 @@
 			booksList.Items.Clear();
 			languageSelection.Items.Clear();
 			languageSelection.SelectedItem = -1;
+			UpdateStatus();
 			await UpdateLocalesAsync();
 		}
 	}

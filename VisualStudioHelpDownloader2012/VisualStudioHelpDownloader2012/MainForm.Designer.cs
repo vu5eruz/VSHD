@@ -38,6 +38,9 @@
             this.booksList = new System.Windows.Forms.ListView();
             this.languageSelection = new System.Windows.Forms.ComboBox();
             this.vsVersion = new System.Windows.Forms.ComboBox();
+            this.statusStrip = new System.Windows.Forms.StatusStrip();
+            this.statusStripProgress = new System.Windows.Forms.ToolStripProgressBar();
+            this.statusStripStatus = new System.Windows.Forms.ToolStripStatusLabel();
             _labelDirectory = new System.Windows.Forms.Label();
             _labelFilter = new System.Windows.Forms.Label();
             bookName = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
@@ -46,15 +49,16 @@
             downloadSize = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             packagesToDownload = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             label1 = new System.Windows.Forms.Label();
+            this.statusStrip.SuspendLayout();
             this.SuspendLayout();
             // 
             // _labelDirectory
             // 
             _labelDirectory.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             _labelDirectory.AutoSize = true;
-            _labelDirectory.Location = new System.Drawing.Point(12, 684);
+            _labelDirectory.Location = new System.Drawing.Point(12, 415);
             _labelDirectory.Name = "_labelDirectory";
-            _labelDirectory.Size = new System.Drawing.Size(108, 25);
+            _labelDirectory.Size = new System.Drawing.Size(71, 15);
             _labelDirectory.TabIndex = 10;
             _labelDirectory.Text = "Store files in";
             // 
@@ -62,9 +66,9 @@
             // 
             _labelFilter.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             _labelFilter.AutoSize = true;
-            _labelFilter.Location = new System.Drawing.Point(364, 573);
+            _labelFilter.Location = new System.Drawing.Point(263, 321);
             _labelFilter.Name = "_labelFilter";
-            _labelFilter.Size = new System.Drawing.Size(159, 25);
+            _labelFilter.Size = new System.Drawing.Size(105, 15);
             _labelFilter.TabIndex = 8;
             _labelFilter.Text = "2. Select Language";
             // 
@@ -101,9 +105,9 @@
             // 
             label1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             label1.AutoSize = true;
-            label1.Location = new System.Drawing.Point(12, 573);
+            label1.Location = new System.Drawing.Point(12, 321);
             label1.Name = "label1";
-            label1.Size = new System.Drawing.Size(196, 25);
+            label1.Size = new System.Drawing.Size(128, 15);
             label1.TabIndex = 12;
             label1.Text = "1. Visual Studio Version";
             // 
@@ -111,9 +115,9 @@
             // 
             this.loadBooks.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.loadBooks.Enabled = false;
-            this.loadBooks.Location = new System.Drawing.Point(914, 563);
+            this.loadBooks.Location = new System.Drawing.Point(525, 318);
             this.loadBooks.Name = "loadBooks";
-            this.loadBooks.Size = new System.Drawing.Size(170, 44);
+            this.loadBooks.Size = new System.Drawing.Size(146, 23);
             this.loadBooks.TabIndex = 3;
             this.loadBooks.Text = "3. Load Books";
             this.loadBooks.UseVisualStyleBackColor = true;
@@ -123,10 +127,10 @@
             // 
             this.cacheDirectory.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.cacheDirectory.Location = new System.Drawing.Point(126, 681);
+            this.cacheDirectory.Location = new System.Drawing.Point(89, 412);
             this.cacheDirectory.Name = "cacheDirectory";
             this.cacheDirectory.ReadOnly = true;
-            this.cacheDirectory.Size = new System.Drawing.Size(1075, 31);
+            this.cacheDirectory.Size = new System.Drawing.Size(699, 23);
             this.cacheDirectory.TabIndex = 5;
             // 
             // browseDirectory
@@ -134,9 +138,9 @@
             this.browseDirectory.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.browseDirectory.Enabled = false;
             this.browseDirectory.Image = ((System.Drawing.Image)(resources.GetObject("browseDirectory.Image")));
-            this.browseDirectory.Location = new System.Drawing.Point(1207, 678);
+            this.browseDirectory.Location = new System.Drawing.Point(794, 412);
             this.browseDirectory.Name = "browseDirectory";
-            this.browseDirectory.Size = new System.Drawing.Size(31, 35);
+            this.browseDirectory.Size = new System.Drawing.Size(31, 24);
             this.browseDirectory.TabIndex = 2;
             this.browseDirectory.UseVisualStyleBackColor = true;
             this.browseDirectory.Click += new System.EventHandler(this.BrowseDirectoryClick);
@@ -145,10 +149,10 @@
             // 
             this.downloadProgress.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.downloadProgress.Location = new System.Drawing.Point(12, 622);
+            this.downloadProgress.Location = new System.Drawing.Point(12, 370);
             this.downloadProgress.MarqueeAnimationSpeed = 25;
             this.downloadProgress.Name = "downloadProgress";
-            this.downloadProgress.Size = new System.Drawing.Size(1226, 36);
+            this.downloadProgress.Size = new System.Drawing.Size(813, 36);
             this.downloadProgress.Style = System.Windows.Forms.ProgressBarStyle.Continuous;
             this.downloadProgress.TabIndex = 9;
             // 
@@ -157,9 +161,9 @@
             this.startupTip.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.startupTip.AutoSize = true;
             this.startupTip.BackColor = System.Drawing.SystemColors.Window;
-            this.startupTip.Location = new System.Drawing.Point(235, 299);
+            this.startupTip.Location = new System.Drawing.Point(28, 173);
             this.startupTip.Name = "startupTip";
-            this.startupTip.Size = new System.Drawing.Size(778, 25);
+            this.startupTip.Size = new System.Drawing.Size(514, 15);
             this.startupTip.TabIndex = 6;
             this.startupTip.Text = "Select your Visual Studio version and language, then press \"Load\" to  retrieve th" +
     "e available books";
@@ -169,9 +173,9 @@
             // 
             this.downloadBooks.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.downloadBooks.Enabled = false;
-            this.downloadBooks.Location = new System.Drawing.Point(1090, 563);
+            this.downloadBooks.Location = new System.Drawing.Point(677, 319);
             this.downloadBooks.Name = "downloadBooks";
-            this.downloadBooks.Size = new System.Drawing.Size(148, 44);
+            this.downloadBooks.Size = new System.Drawing.Size(148, 22);
             this.downloadBooks.TabIndex = 5;
             this.downloadBooks.Text = "4. Download";
             this.downloadBooks.UseVisualStyleBackColor = true;
@@ -182,9 +186,9 @@
             this.loadingBooksTip.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.loadingBooksTip.AutoSize = true;
             this.loadingBooksTip.BackColor = System.Drawing.SystemColors.Window;
-            this.loadingBooksTip.Location = new System.Drawing.Point(545, 299);
+            this.loadingBooksTip.Location = new System.Drawing.Point(338, 173);
             this.loadingBooksTip.Name = "loadingBooksTip";
-            this.loadingBooksTip.Size = new System.Drawing.Size(223, 25);
+            this.loadingBooksTip.Size = new System.Drawing.Size(148, 15);
             this.loadingBooksTip.TabIndex = 7;
             this.loadingBooksTip.Text = "Downloading please wait...";
             // 
@@ -202,11 +206,12 @@
             packagesToDownload});
             this.booksList.FullRowSelect = true;
             this.booksList.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
+            this.booksList.HideSelection = false;
             this.booksList.HoverSelection = true;
             this.booksList.Location = new System.Drawing.Point(17, 12);
             this.booksList.Name = "booksList";
             this.booksList.ShowItemToolTips = true;
-            this.booksList.Size = new System.Drawing.Size(1226, 537);
+            this.booksList.Size = new System.Drawing.Size(813, 293);
             this.booksList.TabIndex = 4;
             this.booksList.UseCompatibleStateImageBehavior = false;
             this.booksList.View = System.Windows.Forms.View.Details;
@@ -218,9 +223,9 @@
             this.languageSelection.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.languageSelection.Enabled = false;
             this.languageSelection.FormattingEnabled = true;
-            this.languageSelection.Location = new System.Drawing.Point(538, 570);
+            this.languageSelection.Location = new System.Drawing.Point(374, 319);
             this.languageSelection.Name = "languageSelection";
-            this.languageSelection.Size = new System.Drawing.Size(121, 33);
+            this.languageSelection.Size = new System.Drawing.Size(121, 23);
             this.languageSelection.Sorted = true;
             this.languageSelection.TabIndex = 1;
             this.languageSelection.SelectedIndexChanged += new System.EventHandler(this.BookOptionsChanged);
@@ -235,17 +240,40 @@
             "2013",
             "2015",
             "2017"});
-            this.vsVersion.Location = new System.Drawing.Point(214, 570);
+            this.vsVersion.Location = new System.Drawing.Point(146, 318);
             this.vsVersion.Name = "vsVersion";
-            this.vsVersion.Size = new System.Drawing.Size(111, 33);
+            this.vsVersion.Size = new System.Drawing.Size(111, 23);
             this.vsVersion.TabIndex = 0;
             this.vsVersion.SelectedIndexChanged += new System.EventHandler(this.VsVersionChanged);
             // 
+            // statusStrip
+            // 
+            this.statusStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.statusStripProgress,
+            this.statusStripStatus});
+            this.statusStrip.Location = new System.Drawing.Point(0, 451);
+            this.statusStrip.Name = "statusStrip";
+            this.statusStrip.Size = new System.Drawing.Size(845, 22);
+            this.statusStrip.TabIndex = 13;
+            this.statusStrip.Text = "statusStrip1";
+            // 
+            // statusStripProgress
+            // 
+            this.statusStripProgress.Name = "statusStripProgress";
+            this.statusStripProgress.Size = new System.Drawing.Size(100, 16);
+            // 
+            // statusStripStatus
+            // 
+            this.statusStripStatus.Name = "statusStripStatus";
+            this.statusStripStatus.Size = new System.Drawing.Size(118, 17);
+            this.statusStripStatus.Text = "toolStripStatusLabel1";
+            // 
             // MainForm
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(10F, 25F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1258, 725);
+            this.ClientSize = new System.Drawing.Size(845, 473);
+            this.Controls.Add(this.statusStrip);
             this.Controls.Add(label1);
             this.Controls.Add(this.vsVersion);
             this.Controls.Add(this.languageSelection);
@@ -265,6 +293,8 @@
             this.Name = "MainForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "%TITLE%";
+            this.statusStrip.ResumeLayout(false);
+            this.statusStrip.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -282,6 +312,9 @@
 		private System.Windows.Forms.ListView booksList;
 		private System.Windows.Forms.ComboBox languageSelection;
 		private System.Windows.Forms.ComboBox vsVersion;
-	}
+        private System.Windows.Forms.StatusStrip statusStrip;
+        private System.Windows.Forms.ToolStripStatusLabel statusStripStatus;
+        private System.Windows.Forms.ToolStripProgressBar statusStripProgress;
+    }
 }
 
